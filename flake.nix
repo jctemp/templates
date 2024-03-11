@@ -13,6 +13,10 @@
   }:
     {
       templates = {
+        python-shell = {
+          path = ./python;
+          description = "Python shell flake";
+        };
       };
     }
     // (
