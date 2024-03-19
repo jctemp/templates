@@ -21,6 +21,10 @@
           path = ./python-ml;
           description = "Python machine learning shell";
         };
+        rust = {
+          path = ./rust;
+          description = "Simple rust project";
+        };
       };
     }
     // (
