@@ -13,9 +13,9 @@
   }:
     {
       templates = {
-        python-shell = {
-          path = ./python;
-          description = "Python shell flake";
+        python-ml = {
+          path = ./python-ml;
+          description = "Python machine learning shell";
         };
       };
     }
