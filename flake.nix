@@ -13,6 +13,10 @@
   }:
     {
       templates = {
+        default = {
+          path = ./default;
+          description = "Simple flake for arbitrary projects";
+        };
         python-ml = {
           path = ./python-ml;
           description = "Python machine learning shell";
