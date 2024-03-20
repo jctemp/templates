@@ -68,6 +68,7 @@
               torch
               torchvision
               torchinfo
+              pytorch-lightning
             ]);
         };
       }
