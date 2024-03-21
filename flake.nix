@@ -25,6 +25,10 @@
           path = ./rust;
           description = "Simple rust project";
         };
+        typst = {
+          path = ./typst;
+          description = "Typst template to write various documents";
+        };
       };
     }
     // (
