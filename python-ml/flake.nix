@@ -26,6 +26,13 @@
           inherit system;
           config = {
             allowUnfree = true;
+            cudaSupport = false;
+          };
+        };
+        pkgs-cuda = import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
             cudaSupport = true;
           };
           overlays = [(import ./overlays.nix)];
@@ -33,6 +40,7 @@
 
         python = pkgs.python3;
         pythonPackages = pkgs.python3Packages;
+        pythonCudaPackages = pkgs-cuda.python3Packages;
         cudaPackages = pkgs.cudaPackages;
 
         packages = [
@@ -46,17 +54,15 @@
           python
 
           # Generic
+          pythonPackages.babel
           pythonPackages.black
           pythonPackages.ipykernel
-          pythonPackages.pip
-
           pythonPackages.jupyter
+          pythonPackages.pip
           pythonPackages.pygments
-          pythonPackages.babel
-          pythonPackages.python-lsp-server
 
           # Utils
-          pythonPackages.opencv4
+          pythonCudaPackages.opencv4
           pythonPackages.matplotlib
           pythonPackages.numpy
           pythonPackages.pandas
@@ -66,15 +72,16 @@
           pythonPackages.seaborn
 
           # ML
-          pythonPackages.torch-bin
-          pythonPackages.torchvision-bin
-          pythonPackages.torchaudio-bin
-          pythonPackages.torchmetrics
-          pythonPackages.torchinfo
+          pythonCudaPackages.torch-bin
+          pythonCudaPackages.torchaudio-bin
+          pythonCudaPackages.torchvision-bin
           pythonPackages.pytorch-lightning
+          pythonPackages.tensorboardx
+          pythonPackages.torchinfo
+          pythonPackages.torchmetrics
 
-          pythonPackages.torchio
           pythonPackages.monai
+          pythonPackages.torchio
           pythonPackages.wandb
         ];
       in {

@@ -22,14 +22,6 @@ final: prev: {
         pytorch-lightning = python-prev.pytorch-lightning.override {
           torch = python-final.torch;
         };
-
-        torchio = python-prev.pytorch-lightning.override {
-          torch = python-final.torch;
-        };
-
-        monai = python-prev.pytorch-lightning.override {
-          torch = python-final.torch;
-        };
       })
     ];
 }
