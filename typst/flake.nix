@@ -2,7 +2,7 @@
   description = "Typst flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -17,9 +17,11 @@
       formatter = pkgs.alejandra;
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
+          microsoft-edge
           alejandra
           typst
           typst-live
+          typst-lsp
         ];
       };
     });
