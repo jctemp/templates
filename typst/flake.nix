@@ -20,6 +20,7 @@
       formatter = pkgs.alejandra;
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
+          (pkgs.writeShellScriptBin "microsoft-edge-w" "${pkgs.microsoft-edge}/bin/microsoft-edge --ozone-platform-hint=auto")
           microsoft-edge
           alejandra
           typst
