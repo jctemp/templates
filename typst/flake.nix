@@ -11,22 +11,53 @@
     nixpkgs,
     flake-utils,
   }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-      };
+    flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
+      pkgs = import nixpkgs {inherit system;};
     in {
       formatter = pkgs.alejandra;
-      devShells.default = pkgs.mkShell {
-        packages = with pkgs; [
-          (pkgs.writeShellScriptBin "microsoft-edge-w" "${pkgs.microsoft-edge}/bin/microsoft-edge --ozone-platform-hint=auto")
-          microsoft-edge
-          alejandra
-          typst
-          typst-live
-          typst-lsp
-        ];
-      };
+      devShells.default =
+        pkgs.mkShell
+        {
+          packages = with pkgs; [
+            alejandra
+            firefox
+            tinymist
+            typst
+            typst-live
+            typstyle
+            (vscode-with-extensions.override {
+              vscode = vscodium;
+              vscodeExtensions = with vscode-extensions; [
+                myriad-dreamin.tinymist
+                christian-kohler.path-intellisense
+                pkief.material-icon-theme
+              ];
+            })
+            bashInteractive
+          ];
+          shellHook = let
+            settings = {
+              "editor.rulers" = [80 120];
+              "workbench.colorCustomizations" = {
+                "editorRuler.foreground" = "#ff4081";
+              };
+              "editor.formatOnSave" = true;
+              "tinymist.formatterMode" = "typstyle";
+              "workbench.iconTheme" = "material-icon-theme";
+              "terminal.integrated.defaultProfile.linux" = "bash";
+              "terminal.integrated.profiles.linux" = {
+                "bash" = {
+                  "path" = "${pkgs.bashInteractive}/bin/bash";
+                  "icon" = "terminal-bash";
+                };
+              };
+            };
+            settingsJson = builtins.toJSON settings;
+          in ''
+            mkdir -p .vscode
+            echo '${settingsJson}'
+            echo '${settingsJson}' > .vscode/settings.json
+          '';
+        };
     });
 }
