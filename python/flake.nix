@@ -41,7 +41,7 @@
           pkgs."python${version}Packages".pip
 
           pkgs.cudaPackages.cudatoolkit
-          pkgs.cudaPackages.cudnn
+          (pkgs.cudaPackages.cudnn.override { autoAddDriverRunpath = pkgs.autoAddDriverRunpath; })
         ];
       in {
         formatter = pkgs.alejandra;
@@ -49,7 +49,7 @@
           inherit packages;
           name = "python hierarical environment";
           shellHook = ''
-            export PYTHONPATH="''${PYTHONPATH}:${self}"
+            export PYTHONPATH="''${PYTHONPATH}:${self}:$(pwd)"
           '';
         };
       }
