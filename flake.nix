@@ -17,9 +17,9 @@
           path = ./default;
           description = "Simple flake for arbitrary projects";
         };
-        python-ml = {
-          path = ./python-ml;
-          description = "Python machine learning shell";
+        python = {
+          path = ./python;
+          description = "Python shell";
         };
         rust = {
           path = ./rust;
@@ -28,6 +28,10 @@
         typst = {
           path = ./typst;
           description = "Typst template to write various documents";
+        };
+        zig = {
+          path = ./zig;
+          description = "Zig template";
         };
       };
     }
