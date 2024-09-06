@@ -27,32 +27,32 @@
       system: let
         pkgs = import nixpkgs {
           inherit system;
-          config = { allowUnfree = true; };
+          config = {allowUnfree = true;};
         };
-
-        packages = let
-          version = "311";
-        in [
-          pkgs.cachix
-          pkgs.alejandra
-          pkgs.nodejs
-
-          pkgs."python${version}"
-          pkgs."python${version}Packages".pip
-
-          pkgs.cudaPackages.cudatoolkit
-          (pkgs.cudaPackages.cudnn.override { autoAddDriverRunpath = pkgs.autoAddDriverRunpath; })
-        ];
       in {
         formatter = pkgs.alejandra;
-        devShell = pkgs.buildFHSEnv {
-          name = "python hierarical environment";
-          targetPkgs = packages;
-          runScript = "bash";
-          profile = ''
-            export PYTHONPATH="''${PYTHONPATH}:${self}:$(pwd)"
-          '';
-        };
+        devShells.default =
+          (pkgs.buildFHSUserEnv {
+            name = "python hierarical environment";
+            targetPkgs = pkgs: (let
+              version = "310";
+            in [
+              pkgs.cachix
+              pkgs.alejandra
+              pkgs.nodejs
+
+              pkgs."python${version}"
+              pkgs."python${version}Packages".pip
+
+              pkgs.cudaPackages.cudatoolkit
+              (pkgs.cudaPackages.cudnn.override {autoAddDriverRunpath = pkgs.autoAddDriverRunpath;})
+            ]);
+            runScript = "bash";
+            profile = ''
+              export PYTHONPATH="''${PYTHONPATH}:${self}:$(pwd)"
+            '';
+          })
+          .env;
       }
     );
 }
