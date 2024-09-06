@@ -45,10 +45,11 @@
         ];
       in {
         formatter = pkgs.alejandra;
-        devShell = pkgs.mkShell {
-          inherit packages;
+        devShell = pkgs.buildFHSEnv {
           name = "python hierarical environment";
-          shellHook = ''
+          targetPkgs = packages;
+          runScript = "bash";
+          profile = ''
             export PYTHONPATH="''${PYTHONPATH}:${self}:$(pwd)"
           '';
         };
