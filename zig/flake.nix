@@ -27,46 +27,15 @@
           zig
           zls
           zig-shell-completions
-          (vscode-with-extensions.override {
-            vscode = vscodium;
-            vscodeExtensions = with vscode-extensions;
-              [
-                ziglang.vscode-zig
-                christian-kohler.path-intellisense
-                pkief.material-icon-theme
-              ]
-              ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-                {
-                  name = "zig-tools";
-                  publisher = "bwork";
-                  version = "0.0.4";
-                  sha256 = "sha256-N4JYcdb/l2WAJpwsuVj+BZvOIhEUUbDl0SKNZ+PbqKI=";
-                }
-              ];
-          })
           bashInteractive
         ];
         shellHook = let
-          settings = {
-            "editor.rulers" = [80 120];
-            "workbench.colorCustomizations" = {
-              "editorRuler.foreground" = "#ff4081";
-            };
-            "editor.formatOnSave" = true;
-            "workbench.iconTheme" = "material-icon-theme";
-            "terminal.integrated.defaultProfile.linux" = "bash";
-            "terminal.integrated.profiles.linux" = {
-              "bash" = {
-                "path" = "${pkgs.bashInteractive}/bin/bash";
-                "icon" = "terminal-bash";
-              };
-            };
-          };
-          settingsJson = builtins.toJSON settings;
+          languages.language-server.zls.command = "${pkgs.zls}/bin/zls";
+          file = pkgs.writers.writeTOML "languages.toml" languages;
         in ''
-          mkdir -p .vscode
-          echo '${settingsJson}'
-          echo '${settingsJson}' > .vscode/settings.json
+          mkdir .helix
+          export PATH=$PATH:${pkgs.lldb}/lib:${pkgs.lldb}/bin
+          ln -sf ${file} .helix/languages.toml
         '';
       };
     });
