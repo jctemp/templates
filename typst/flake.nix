@@ -19,44 +19,32 @@
         pkgs.mkShell
         {
           packages = with pkgs; [
-            alejandra
             firefox
             tinymist
             typst
-            typst-live
             typstyle
-            (vscode-with-extensions.override {
-              vscode = vscodium;
-              vscodeExtensions = with vscode-extensions; [
-                myriad-dreamin.tinymist
-                christian-kohler.path-intellisense
-                pkief.material-icon-theme
-              ];
-            })
             bashInteractive
           ];
           shellHook = let
-            settings = {
-              "editor.rulers" = [80 120];
-              "workbench.colorCustomizations" = {
-                "editorRuler.foreground" = "#ff4081";
+            languages = {
+              language-server.tinymist = {
+                command = "${pkgs.tinymist}/bin/tinymist";
+                config.typstExtraArgs = ["main.typ"];
               };
-              "editor.formatOnSave" = true;
-              "tinymist.formatterMode" = "typstyle";
-              "workbench.iconTheme" = "material-icon-theme";
-              "terminal.integrated.defaultProfile.linux" = "bash";
-              "terminal.integrated.profiles.linux" = {
-                "bash" = {
-                  "path" = "${pkgs.bashInteractive}/bin/bash";
-                  "icon" = "terminal-bash";
-                };
-              };
+              language = [
+                {
+                  name = "typst";
+                  formatter = {
+                    command = "${pkgs.typstyle}/bin/typstyle";
+                    # args = [ "--inplace" ];
+                  };
+                }
+              ];
             };
-            settingsJson = builtins.toJSON settings;
+            file = pkgs.writers.writeTOML "languages.toml" languages;
           in ''
-            mkdir -p .vscode
-            echo '${settingsJson}'
-            echo '${settingsJson}' > .vscode/settings.json
+            mkdir .helix
+            ln -sf ${file} .helix/languages.toml
           '';
         };
     });
