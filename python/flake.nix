@@ -1,15 +1,7 @@
 # NixOS and python
-#   Nix has actually a good support for python and package creation.
-#   However, at the current state of the project it is very difficult
-#   to work with python packages that utilises NVIDIA CUDA, e.g.
-#   most machine learning and computer vision libraries. It comes
-#   with the issues of missing binary builds as NVIDIA is closed
-#   source and NixOS is not building packages with non-FOSS liscences.
-#   One could use binary caches of thrid party, nonetheless, depending
-#   on the version and setup binaries are not available causing a
-#   recompiling of these libraries. Hence, INSANE BUILD TIMES.
-#   FHS is the best solution at the moment. Note, poetry is no good as
-#   it is non-standard python!
+#   Hydra is not building packages that build against CUDA. Hence, scientific
+#   computing is not really viable with Nix. Therefore, the templates provides
+#   a basic shell.
 {
   description = "Python flake";
 
@@ -18,16 +10,12 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachSystem ["x86_64-linux"] (
+  outputs = inputs:
+    inputs.flake-utils.lib.eachSystem ["x86_64-linux"] (
       system: let
-        pkgs = import nixpkgs {
+        pkgs = import inputs.nixpkgs {
           inherit system;
-          config = {allowUnfree = true;};
+          config.allowUnfree = true;
         };
       in {
         formatter = pkgs.alejandra;
@@ -35,11 +23,9 @@
           (pkgs.buildFHSUserEnv {
             name = "python hierarical environment";
             targetPkgs = pkgs: (let
-              version = "310";
+              version = "311";
             in [
-              pkgs.cachix
               pkgs.alejandra
-              pkgs.nodejs
 
               pkgs."python${version}"
               pkgs."python${version}Packages".pip
@@ -49,7 +35,7 @@
             ]);
             runScript = "bash";
             profile = ''
-              export PYTHONPATH="''${PYTHONPATH}:${self}:$(pwd)"
+              export PYTHONPATH="''${PYTHONPATH}:${inputs.self}"
             '';
           })
           .env;

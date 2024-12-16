@@ -2,20 +2,17 @@
   description = "Simple flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {inherit system;};
+  outputs = inputs:
+    inputs.flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import inputs.nixpkgs {inherit system;};
     in {
       formatter = pkgs.alejandra;
-      devShells.default = pkgs.mkShell {
+      devShells.default = pkgs.mkShellNoCC {
+        name = "default shell";
         packages = with pkgs; [
           alejandra
         ];

@@ -1,32 +1,38 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-DEFAULT_VENV_DIR=".venv"
-
-if [ $# -eq 0 ]; then
-    echo "Virtual environment directory is not set, using default $DEFAULT_VENV_DIR"
-    VENV_DIR=$DEFAULT_VENV_DIR
-else
-    VENV_DIR=$1
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "must be sourced"
+    exit 10
 fi
 
-if [ ! -d "$VENV_DIR" ]; then
-    python3 -m venv $VENV_DIR
-
-    if [ $? -ne 0 ]; then
-        echo "Failed to create virtual environment" >&2
-        exit 1
-    fi
-
-    echo "Virtual environment created at $VENV_DIR"
-
-    $VENV_DIR/bin/pip install -r requirements.txt
-
-    if [ $? -ne 0 ]; then
-        echo "Failed to install dependencies" >&2
-        exit 1
-    fi
-
-    echo "Virtual environment is activated and dependencies are installed."
+if ! command -v python; then 
+  echo 'python not installed'
+  return 20
 fi
 
-. $VENV_DIR/bin/activate
+if [ -z "$VIRTUAL_ENV_DIR" ]; then
+  echo 'using default env directory'
+  VIRTUAL_ENV_DIR=.venv
+fi
+
+if [ -d .venv ]; then
+  echo 'initialising virtual env'
+  python -m venv "$VIRTUAL_ENV_DIR"  
+
+    if [ -f requirements.txt ]; then
+    echo 'installing local requirements'
+    "$VIRTUAL_ENV_DIR/bin/pip" install -r requirements.txt
+  else
+    echo 'no requirements.txt available'
+  fi
+
+  ACTIVATE_SCRIPT="$VIRTUAL_ENV_DIR/bin/activate"
+  if [ -f "$ACTIVATE_SCRIPT" ]; then
+      # shellcheck disable=SC1090
+      source "$ACTIVATE_SCRIPT"
+  else
+      echo "Error: Virtual environment activation script not found at $ACTIVATE_SCRIPT"
+      return 30
+  fi
+fi
+

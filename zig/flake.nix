@@ -6,16 +6,13 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
-      pkgs = import nixpkgs {inherit system;};
+  outputs = inputs:
+    inputs.flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
+      pkgs = import inputs.nixpkgs {inherit system;};
     in {
       formatter = pkgs.alejandra;
       devShells.default = pkgs.mkShell {
+        name = "zig shell";
         packages = with pkgs; [
           # c/c++ in
           libclang
@@ -29,13 +26,8 @@
           zig-shell-completions
           bashInteractive
         ];
-        shellHook = let
-          languages.language-server.zls.command = "${pkgs.zls}/bin/zls";
-          file = pkgs.writers.writeTOML "languages.toml" languages;
-        in ''
-          mkdir .helix
+        shellHook = ''
           export PATH=$PATH:${pkgs.lldb}/lib:${pkgs.lldb}/bin
-          ln -sf ${file} .helix/languages.toml
         '';
       };
     });

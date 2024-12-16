@@ -1,16 +1,12 @@
 {
-  description = "Nix flake templates";
+  description = "Custom nix flake templates";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
+  outputs = inputs:
     {
       templates = {
         default = {
@@ -19,28 +15,29 @@
         };
         python = {
           path = ./python;
-          description = "Python shell";
+          description = "Python";
         };
         rust = {
           path = ./rust;
-          description = "Simple rust project";
+          description = "Rust";
         };
         typst = {
           path = ./typst;
-          description = "Typst template to write various documents";
+          description = "Typst";
         };
         zig = {
           path = ./zig;
-          description = "Zig template";
+          description = "Zig";
         };
       };
     }
     // (
-      flake-utils.lib.eachDefaultSystem (system: let
-        pkgs = import nixpkgs {inherit system;};
+      inputs.flake-utils.lib.eachDefaultSystem (system: let
+        pkgs = import inputs.nixpkgs {inherit system;};
       in {
         formatter = pkgs.alejandra;
         devShells.default = pkgs.mkShellNoCC {
+          name = "templates shell";
           packages = [
             pkgs.alejandra
           ];
