@@ -15,7 +15,7 @@ if [ -z "$VIRTUAL_ENV_DIR" ]; then
   VIRTUAL_ENV_DIR=.venv
 fi
 
-if [ -d .venv ]; then
+if [ ! -d .venv ]; then
   echo 'initialising virtual env'
   python -m venv "$VIRTUAL_ENV_DIR"  
 
