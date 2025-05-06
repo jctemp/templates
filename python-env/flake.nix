@@ -1,5 +1,5 @@
 {
-  description = "Python environment with CUDA in FHS";
+  description = "Minimal Python environment with CUDA in FHS";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -16,18 +16,18 @@
       };
     in {
       default = let
-        python = pkgs.python312;
-        cuda = pkgs.cudaPackages.cudatoolkit;
-        cudnn = pkgs.cudaPackages.cudnn;
+        py-version = "312";
+        cu-version = "12_4";
+
+        python = pkgs."python${py-version}";
+        cuda = pkgs."cudaPackages_${cu-version}".cudatoolkit;
+        cudnn = pkgs."cudaPackages_${cu-version}".cudnn;
       in
-        (pkgs.buildFHSUserEnv {
-          name = "ml-fhs";
+        (pkgs.buildFHSEnv {
+          name = "python${py-version}-cuda${cu-version}";
           targetPkgs = pkgs: (with pkgs; [
             # Basic tools
             bashInteractive
-            git
-            curl
-            which
 
             # Build tools
             gcc
@@ -63,27 +63,15 @@
             export LD_LIBRARY_PATH=${cuda}/lib:${cudnn}/lib:$LD_LIBRARY_PATH
 
             export PATH=$PATH:${cuda}/bin
-
-            export UV_SYSTEM_PYTHON=${python}/bin/python
-            export UV_PYTHONPATH=${python}/lib/python3.12/site-packages
-            export PYTHONPATH=$PYTHONPATH:${python}/lib/python3.12/site-packages
+            export PYTHONPATH=$PYTHONPATH:$PWD
 
             # Display environment info
-            echo "ML FHS Environment activated"
-            echo "Python: $(python --version)"
-            echo "GCC: $(gcc --version | head -n 1)"
-            echo "NVCC: $(nvcc --version | head -n 1)"
-            echo "UV: $(uv --version)"
-            echo "CUDA toolkit: $CUDA_HOME"
-
-            # Helpful commands
-            echo ""
-            echo "UV Commands:"
-            echo "  uv venv .venv              - Create virtual environment"
-            echo "  uv pip install -r req.txt   - Install dependencies"
-            echo "  uv pip install -e .         - Install package in dev mode"
-            echo "  uv-init [project-name]      - Initialize ML project"
-            echo "  cuda-test                   - Test CUDA availability"
+            echo "FHS Environment"
+            echo "  Python: $(python --version)"
+            echo "  GCC: $(gcc --version | head -n 1)"
+            echo "  NVCC: $(nvcc --version | head -n 1)"
+            echo "  UV: $(uv --version)"
+            echo "  CUDA toolkit: $CUDA_HOME"
           '';
 
           runScript = "bash";

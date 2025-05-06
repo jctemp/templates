@@ -1,4 +1,5 @@
 .direnv
 .vscode
-typst/.helix
-zig/.helix
+
+**/*/.helix
+**/*/flake.lock
