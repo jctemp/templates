@@ -1,19 +1,21 @@
 {
   description = "Typst flake";
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-  outputs = inputs:
-    inputs.flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
+  outputs = inputs: let
+    systems = ["x86_64-linux"];
+    eachSystem = systems: func: inputs.nixpkgs.lib.genAttrs systems (system: func system);
+    eachDefaultSystem = eachSystem systems;
+  in {
+    formatter = eachDefaultSystem (system: inputs.nixpkgs.legacyPackages.${system}.alejandra);
+    devShells = eachDefaultSystem (system: let
       pkgs = import inputs.nixpkgs {inherit system;};
     in {
-      formatter = pkgs.alejandra;
-      devShells.default =
+      default =
         pkgs.mkShell
         {
+          name = "typst";
           packages = with pkgs; [
             firefox
             tinymist
@@ -21,26 +23,14 @@
             typstyle
             bashInteractive
           ];
-          shellHook = let
-            languages = {
-              language-server.tinymist = {
-                command = "${pkgs.tinymist}/bin/tinymist";
-                config.typstExtraArgs = ["main.typ"];
-              };
-              language = [
-                {
-                  name = "typst";
-                  formatter = {
-                    command = "${pkgs.typstyle}/bin/typstyle";
-                  };
-                }
-              ];
-            };
-            file = pkgs.writers.writeTOML "languages.toml" languages;
-          in ''
-            mkdir .helix
-            ln -sf ${file} .helix/languages.toml
+          shellHook = ''
+            echo ""
+            tinymist -V
+            typst -V
+            typstyle -V
+            echo ""
           '';
         };
     });
+  };
 }
